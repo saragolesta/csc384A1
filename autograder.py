@@ -4,9 +4,9 @@ from solution import *
 from sokoban import sokoban_goal_state
 
 #Select what to test
-test_manhattan = True
+test_manhattan = False
 test_fval_function = False
-test_anytime_gbfs = False
+test_anytime_gbfs = True
 test_alternate = False
 test_anytime_weighted_astar = False
 
@@ -63,7 +63,8 @@ if test_alternate:
     final = se.search(timebound)
 
     if final:
-      #final.print_path()  
+      #final.print_path()
+      print(final.gval, output[i])   
       solved += 1
     else:
       unsolved.append(i)
@@ -128,8 +129,9 @@ if test_anytime_gbfs:
       if i < len(len_benchmark):
         index = i
       else:
-        index = 0      
-      final.print_path()   
+        index = 0  
+      print(final.gval, len_benchmark[index])    
+      s0.print_path()   
       if final.gval <= len_benchmark[index] or len_benchmark[index] == -99:
         benchmark += 1
       solved += 1 
@@ -163,12 +165,14 @@ if test_anytime_weighted_astar:
     final = anytime_weighted_astar(s0, heur_fn=heur_alternate, weight=weight, timebound=timebound)
 
     if final:
+      print(final.gval, len_benchmark[i]) 
       if i < len(len_benchmark):
         index = i
       else:
         index = 0      
       #final.print_path()   
       if final.gval <= len_benchmark[index] or len_benchmark[index] == -99:
+        print
         benchmark += 1
       solved += 1 
     else:
