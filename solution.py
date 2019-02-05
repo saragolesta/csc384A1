@@ -87,9 +87,15 @@ def heur_alternate(state):
     #heur_manhattan_distance has flaws.
     #Write a heuristic function that improves upon heur_manhattan_distance to estimate distance between the current state and the goal.
     #Your function should return a numeric value for the estimate of the distance to the goal.
-    costs = np.zeros((len(state.boxes), len(state.storage)))
-    for box_idx, box in enumerate(state.boxes):
-      for s_idx, s in enumerate(state.storage):
+
+    # If all boxes were in a storage spot return 0 immediately to save time
+    if(state.boxes.issubset(state.storage)):
+      return 0
+    remaining_boxes = state.boxes - (state.boxes & state.storage)
+    remaining_storages = state.storage - (state.boxes & state.storage)
+    costs = np.zeros((len(remaining_boxes), len(remaining_storages)))
+    for box_idx, box in enumerate(remaining_boxes):
+      for s_idx, s in enumerate(remaining_storages):
         manhattan_dist = abs(box[0] - s[0]) + abs(box[1] - s[1])
         costs[box_idx][s_idx] = manhattan_dist
         if(box_in_corner(state,box,s) or box_on_edge(state, box, s)):
