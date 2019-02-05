@@ -8,7 +8,7 @@ test_manhattan = False
 test_fval_function = False
 test_anytime_gbfs = True
 test_alternate = False
-test_anytime_weighted_astar = False
+test_anytime_weighted_astar = True
 
 if test_manhattan:
     ##############################################################
@@ -109,7 +109,7 @@ if test_fval_function:
 
 if test_anytime_gbfs:
 
-  len_benchmark = [18, 13, 4, 11, 21, 9, 12, 5, 9, 18, -99, -99, 18, 13, 41, 16, 14, 14, -99, -99, 39, -99, 38, -99, -99, 32, 34, 29, 29, 20, -99, -99, -99, 87, -99, -99, -99, -99, -99, -99]
+  len_benchmark = [18, 4, 21, 12, 9, -99, 18, 41, 14, -99, 39, 38, -99, 34, 29, -99, -99, -99, -99, -99]
   
   ##############################################################
   # TEST ANYTIME GBFS

@@ -11,9 +11,6 @@ from search import * #for search engines
 from sokoban import SokobanState, Direction, PROBLEMS #for Sokoban specific classes and problems
 import numpy as np
 from scipy.optimize import linear_sum_assignment
-import math
-import sys
-import math
 
 def sokoban_goal_state(state):
   '''
@@ -65,17 +62,11 @@ def box_on_edge(state, box, storage):
       return True  
   return False
 
-def box_in_corner(state, box, storage):
-  if(box == storage):
-    return False
-  obstacle_left =  (((box[0] - 1, box[1]) in state.obstacles) or
-   (box[0] == 0))
-  obstacle_right = (((box[0] + 1, box[1]) in state.obstacles) or
-   (box[0] == state.width - 1))
-  obstacle_above = (((box[0], box[1] + 1) in state.obstacles)
-   or (box[1] == 0))
-  obstacle_below = (((box[0], box[1] - 1) in state.obstacles) or
-    (box[1] == state.height - 1))
+def box_in_corner(state, box):
+  obstacle_left =  (((box[0] - 1, box[1]) in state.obstacles))
+  obstacle_right = (((box[0] + 1, box[1]) in state.obstacles))
+  obstacle_above = (((box[0], box[1] + 1) in state.obstacles))
+  obstacle_below = (((box[0], box[1] - 1) in state.obstacles))
   #check if the box is in corner 
   return (obstacle_left or obstacle_right) and (obstacle_above or obstacle_below)
 
@@ -93,15 +84,17 @@ def heur_alternate(state):
       return 0
     remaining_boxes = state.boxes - (state.boxes & state.storage)
     remaining_storages = state.storage - (state.boxes & state.storage)
+
     costs = np.zeros((len(remaining_boxes), len(remaining_storages)))
     for box_idx, box in enumerate(remaining_boxes):
       for s_idx, s in enumerate(remaining_storages):
         manhattan_dist = abs(box[0] - s[0]) + abs(box[1] - s[1])
         costs[box_idx][s_idx] = manhattan_dist
-        if(box_in_corner(state,box,s) or box_on_edge(state, box, s)):
+        if(box_on_edge(state, box, s) or box_in_corner(state, box)):
           #Assign a high cost for these deadlock cases
           costs[box_idx][s_idx] = 2**31
     row_ind, col_ind = linear_sum_assignment(costs)
+
     # We have to account for robot moves when they are on a stoarge spot
     robot_moves = len(frozenset(state.robots) & state.storage)
     return costs[row_ind, col_ind].sum() + robot_moves
@@ -150,12 +143,12 @@ def anytime_weighted_astar(initial_state, heur_fn, weight=1., timebound = 10):
     weight -= 1
   #Making sure the function returns when the timebound is reached
   while (curr_time < end_time):
-  	# If there was no solution (best_path was false)
+    # If there was no solution (best_path was false)
     if (not path):
       print(False)
       return best_path
     if (path.gval < costbound[0]):
-        costbound = (float("inf"), float("inf"), path.gval)          
+        costbound = (path.gval, path.gval, path.gval)
         best_path = path
     prev_time = curr_time
     curr_time = os.times()[0]
@@ -163,7 +156,7 @@ def anytime_weighted_astar(initial_state, heur_fn, weight=1., timebound = 10):
     remaining_timebound = remaining_timebound - delta_t
     path = searcher.search(remaining_timebound, costbound)
     if (weight > 0):
-    	weight -= 1
+        weight -= 1
   print(best_path.gval)
   return best_path
 
@@ -186,7 +179,7 @@ def anytime_gbfs(initial_state, heur_fn, timebound = 10):
 
     # Perform the search while the timebound has not been reached
   while (curr_time < end_time):
-  	# If there was no solution (best_path was false)
+    # If there was no solution (best_path was false)
     if (not path):
       return best_path
     if (path.gval < costbound[0]):
